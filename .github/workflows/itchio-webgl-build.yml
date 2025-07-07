@@ -1,0 +1,37 @@
+name: Build and Upload to Itch.io (WebGL)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Cache Unity packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/unity
+            Library
+          key: ${{ runner.os }}-unity-${{ hashFiles('**/Packages/manifest.json') }}
+
+      - name: Set up Unity
+        uses: game-ci/unity-builder@v3
+        with:
+          unityVersion: 2022.3.10f1
+          targetPlatform: WebGL
+
+      - name: Upload to Itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/head/archive/default
+          unzip butler.zip -d butler
+          chmod +x butler/butler
+          ./butler/butler push build/WebGL/ eldamo/shooter:web
