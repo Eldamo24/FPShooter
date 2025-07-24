@@ -5,6 +5,7 @@ public class CameraController : MonoBehaviour
 {
     [Header("Target and sensitivity")]
     [SerializeField] private Transform playerHead;
+    [SerializeField] private Transform playerBody;
     [SerializeField] private float sensitivityX;
     [SerializeField] private float sensitivityY;
 
@@ -41,6 +42,10 @@ public class CameraController : MonoBehaviour
         if(orientation != null)
         {
             orientation.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
+        }
+        if (playerBody != null)
+        {
+            playerBody.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
         }
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,6 +14,17 @@ public class PlayerController : MonoBehaviour
 
     [Header("Orientation")]
     [SerializeField] private Transform orientation;
+
+    [SerializeField] private Camera playerCamera;
+
+    [Header("Shoot variables")]
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private float bulletSpeed;
+    [SerializeField] private float fireRate;
+    private float nextFireTime;
+    private bool isShooting;
+
+
 
     private Rigidbody rb;
     private Vector2 inputMove;
@@ -38,12 +50,32 @@ public class PlayerController : MonoBehaviour
 
     public void OnShoot(InputAction.CallbackContext context)
     {
+        if (context.started)
+        {
+            isShooting = true;
+        }
+        if (context.canceled)
+        {
+            isShooting = false;
+        }
+    }
 
+    public void OnPause(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            GameObject.Find("GameManager").GetComponent<GameManager>().PauseGame();
+        }
     }
 
     private void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, .2f, groundMask);
+        if (isShooting && Time.time >= nextFireTime)
+        {
+            Shoot();
+            nextFireTime = Time.time + fireRate;
+        }
     }
 
     private void FixedUpdate()
@@ -61,6 +93,14 @@ public class PlayerController : MonoBehaviour
     {
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+
+    private void Shoot()
+    {
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        GameObject bullet = Instantiate(bulletPrefab, ray.origin, Quaternion.identity);
+        Rigidbody rbBullet = bullet.GetComponent<Rigidbody>();
+        rbBullet.velocity = ray.direction * bulletSpeed;
     }
 
     private void OnDrawGizmos()
