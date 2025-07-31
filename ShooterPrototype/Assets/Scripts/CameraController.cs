@@ -22,12 +22,6 @@ public class CameraController : MonoBehaviour
         inputLook = context.ReadValue<Vector2>();
     }
 
-    private void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false; 
-    }
-
     private void LateUpdate()
     {
         float mouseX = inputLook.x * sensitivityX;
