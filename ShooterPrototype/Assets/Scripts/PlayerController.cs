@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,6 +13,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("Orientation")]
     [SerializeField] private Transform orientation;
+
+    [Header("Animator")]
+    [SerializeField] private Animator anim;
+    private float currentSpeed = 0f;
+    [SerializeField] private float smoothTime = 0.1f;
 
     [SerializeField] private Camera playerCamera;
 
@@ -76,6 +80,10 @@ public class PlayerController : MonoBehaviour
             Shoot();
             nextFireTime = Time.time + fireRate;
         }
+        Vector3 horizontalVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        float targetSpeed = horizontalVelocity.magnitude;
+        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime / smoothTime);
+        anim.SetFloat("Speed", currentSpeed);
     }
 
     private void FixedUpdate()
